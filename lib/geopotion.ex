@@ -1,0 +1,2 @@
+defmodule GeoPotion do
+end
