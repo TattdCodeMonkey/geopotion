@@ -19,18 +19,14 @@ defmodule Angle do
     end 
 
     @doc "Returns an Angle with 0.0 value in degrees"
-    def new() do
-      new(0.0, :degrees)
-    end
+    def new() do 0.0 |> new :degrees end
     
     @doc """
       Returns an Angle with the given val in degrees
       iex>Angle.new(270.0)
       %Angle{value: 270.0, units: :degrees}
     """
-    def new(val) when is_number(val) do
-      new(val, :degrees) 
-    end
+    def new(val) when is_number(val) do val |> new :degrees end
 
     @doc """
       Takes an Angle and returns an angle with the value normalized to between 0 and 1 whole circle value. 360.0 for degrees of 2 pi for radians
@@ -38,22 +34,22 @@ defmodule Angle do
       iex>Angle.normalize(%Angle{value: -90.0, units: :degrees})
       %Angle{value: 270.0, units: :degrees}
     """
-    def normalize(%Angle{} = angle) do
-      wholeUnit = get_wholeunit(angle.units)
-      cond do
-        angle.value >= 0 and angle.value < wholeUnit -> angle
-        angle.value >= wholeUnit -> new(angle.value - wholeUnit, angle.units) |> normalize
-        angle.value < 0 -> new(angle.value + wholeUnit, angle.units) |> normalize
-      end
-    end
-
-    @doc "returns if the given Angle is normalized between 0 and one whole cirlce value. "
-    def is_normalized(%Angle{} = angle) do
-      angle.units 
-        |> get_wholeunit 
-        |> _is_normalized angle.value
-    end
+    def normalize(%Angle{value: val, units: :degrees}) do val |> _normDegrees |> new end
+    def normalize(%Angle{value: val, units: :radians}) do val |> _normRadians |> new :radians end 
     
+    defp _normDegrees(value) when value >= 360 do value - 360 |> _normDegrees end
+    defp _normDegrees(value) when value < 0 do value + 360 |> _normDegrees end
+    defp _normDegrees(value) when value in 0..360 do value end
+    defp _normRadians(value) when value >= @one_radian do value - @one_radian |> _normRadians end
+    defp _normRadians(value) when value < 0 do value + @one_radian |> _normRadians end
+    defp _normRadians(value) when value in 0..@one_radian do value end
+    
+    @doc "returns if the given Angle is normalized between 0 and one whole cirlce value. "
+    def is_normalized(%Angle{value: val, units: :degrees}) when val >= 0 and val < 360 do true end
+    def is_normalized(%Angle{value: val, units: :degrees}) do false end
+    def is_normalized(%Angle{value: val, units: :radians}) when val >= 0 and val < @one_radian do true end
+    def is_normalized(%Angle{value: val, units: :radians}) do false end 
+
     @doc "Returns the given Angle converted to Degrees"
     def to_degrees(%Angle{value: val, units: :degrees}) do val |> new end
     def to_degrees(%Angle{value: val, units: :radians}) do val |> radians_to_degrees |> new end
@@ -63,31 +59,11 @@ defmodule Angle do
     def to_radians(%Angle{value: val, units: :degrees}) do val |> degrees_to_radians |> new :radians end
 
     @doc "Takes an Angle value in decimal degrees and converts it to decimal radians"
-    def degrees_to_radians(value) when is_number(value) do
-      value * @degToRad
-    end
+    def degrees_to_radians(value) when is_number(value) do value * @degToRad end
 
     @doc "Takes and Angle value in decimal radians and convert it to decimal degrees"
-    def radians_to_degrees(value) when is_number(value) do
-      value * @radToDegree
-    end
+    def radians_to_degrees(value) when is_number(value) do value * @radToDegree end
 
-    defp _is_normalized(wholeUnit, val) do
-      if val >= 0 and val < wholeUnit do
-        true
-      else
-        false
-      end
-    end
-
-    defp get_wholeunit(units) do
-      case units do
-        :degrees -> 360
-        :radians -> @one_radian
-        _ -> 360
-      end
-    end
-
-end 
+ end 
 
 
