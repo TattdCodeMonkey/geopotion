@@ -1,6 +1,7 @@
 defmodule AngleTest do
-  use ExUnit.Case
-  #doctest
+  use ExUnit.Case, async: true
+  alias GeoPotion.Angle
+  doctest Angle
 
   @conv_delta 0.0000001
 
