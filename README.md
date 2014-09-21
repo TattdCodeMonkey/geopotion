@@ -3,7 +3,7 @@ GeoPotion
 
 *** WIP ***
 
-This is a module for dealing with geo spatial data. 
+This is an Elixir module for dealing with geo spatial data. 
 
 Angle    - stores an angle in either decimal degrees or radians. has functions for normalizing and conversions
 Distance - stores a distance value in a subset of supported units of measure. has functions for converting between units
