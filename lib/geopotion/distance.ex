@@ -57,9 +57,16 @@ defmodule GeoPotion.Distance do
   iex>Distance.new(12.5, :nm)
   %Distance{value: 12.5, units: :nm}
   """
-  def new(val, units) when is_number(val) and is_atom(units) and (units == :m or units == :km or units == :ft or units == :sm or units == :nm) do
-    %Distance{value: val, units: units}
+  def new(val, units) when is_number(val) do
+    _new(val,units) 
   end  
+  defp _new(val, :m), do: %Distance{value: val, units: :m}
+  defp _new(val, :km), do: %Distance{value: val, units: :km}
+  defp _new(val, :ft), do: %Distance{value: val, units: :ft}
+  defp _new(val, :sm), do: %Distance{value: val, units: :sm}
+  defp _new(val, :nm), do: %Distance{value: val, units: :nm}
+
+
   @doc """
   Returns a %Distance with the given value in meters
   
