@@ -32,14 +32,14 @@ defmodule AngleTest do
   test "angle - new radians normalized - 2 pi", do: assert Angle.new(:math.pi()*2, :radians) |> Angle.normalize  == %Angle{value: 0.0, units: :radians}
   test "angle - new radians normalized - 3 pi", do: assert Angle.new(:math.pi()*3, :radians) |> Angle.normalize  == %Angle{value: :math.pi(), units: :radians}
 
-  test "angle - is normalized - 0.0 degrees", do: assert Angle.is_normalized(Angle.new(0.0)) == true    
-  test "angle - is normalized - 180.0 degrees", do: assert Angle.is_normalized(Angle.new(180.0)) == true    
-  test "angle - is normalized - 0.0 radians", do: assert Angle.is_normalized(Angle.new(0.0, :radians)) == true    
-  test "angle - is normalized - pi, radians", do: assert Angle.is_normalized(Angle.new(:math.pi, :radians)) == true    
-  test "angle - is normalized - -pi, radians", do: assert Angle.is_normalized(Angle.new(-:math.pi, :radians)) == false    
-  test "angle - is normalized - 455.0 degrees", do: assert Angle.is_normalized(Angle.new(455.0)) == false    
-  test "angle - is normalized - -10.0 degrees", do: assert Angle.is_normalized(Angle.new(-10.0)) == false    
-  test "angle - is normalized - 4pi, radians", do: assert Angle.is_normalized(Angle.new(4* :math.pi, :radians)) == false   
+  test "angle - is normalized - 0.0 degrees", do: assert Angle.is_normalized?(Angle.new(0.0)) == true    
+  test "angle - is normalized - 180.0 degrees", do: assert Angle.is_normalized?(Angle.new(180.0)) == true    
+  test "angle - is normalized - 0.0 radians", do: assert Angle.is_normalized?(Angle.new(0.0, :radians)) == true    
+  test "angle - is normalized - pi, radians", do: assert Angle.is_normalized?(Angle.new(:math.pi, :radians)) == true    
+  test "angle - is normalized - -pi, radians", do: assert Angle.is_normalized?(Angle.new(-:math.pi, :radians)) == false    
+  test "angle - is normalized - 455.0 degrees", do: assert Angle.is_normalized?(Angle.new(455.0)) == false    
+  test "angle - is normalized - -10.0 degrees", do: assert Angle.is_normalized?(Angle.new(-10.0)) == false    
+  test "angle - is normalized - 4pi, radians", do: assert Angle.is_normalized?(Angle.new(4* :math.pi, :radians)) == false   
 
   test "angle - degrees to radians" do
    conversion = Angle.degrees_to_radians(180.0) 

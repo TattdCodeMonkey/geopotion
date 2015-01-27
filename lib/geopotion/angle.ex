@@ -1,6 +1,12 @@
 defmodule GeoPotion.Angle do
-    defstruct value: 0.0, units: :degrees
     alias __MODULE__
+    
+    @type units :: :degrees | :radians
+    
+    @type t :: %__MODULE__{value: number, units: units}
+    
+    defstruct value: 0.0, units: :degrees
+
     @moduledoc """
       Implements structure for holding a decimal angle value in degrees or radians
     """
@@ -15,13 +21,13 @@ defmodule GeoPotion.Angle do
       iex>Angle.new(180.0, :degrees)
       %Angle{value: 180.0, units: :degrees}
     """
-    @spec new(number, atom) :: %Angle{}
+    @spec new(number, atom) :: t
     def new(val, units) when is_number(val) and is_atom(units) and (units == :degrees or units == :radians) do
       %Angle{value: val, units: units}    
     end 
 
     @doc "Returns an Angle with 0.0 value in degrees"
-    @spec new() :: %Angle{}
+    @spec new() :: t
     def new() do 0.0 |> new :degrees end
     
     @doc """
@@ -29,7 +35,7 @@ defmodule GeoPotion.Angle do
       iex>Angle.new(270.0)
       %Angle{value: 270.0, units: :degrees}
     """
-    @spec new(number) :: %Angle{}
+    @spec new(number) :: t
     def new(val) when is_number(val) do val |> new :degrees end
 
     @doc """
@@ -38,9 +44,8 @@ defmodule GeoPotion.Angle do
       iex>Angle.normalize(%Angle{value: -90.0, units: :degrees})
       %Angle{value: 270.0, units: :degrees}
     """
-    @spec normalize(%Angle{}) :: %Angle{}
+    @spec normalize(t) :: t
     def normalize(%Angle{value: val, units: :degrees}) do val |> _normDegrees |> new end
-    @spec normalize(%Angle{}) :: %Angle{}
     def normalize(%Angle{value: val, units: :radians}) do val |> _normRadians |> new :radians end 
     
     defp _normDegrees(value) when value >= 360 do value - 360 |> _normDegrees end
@@ -51,25 +56,20 @@ defmodule GeoPotion.Angle do
     defp _normRadians(value) when value in 0..@one_radian do value end
     
     @doc "returns if the given Angle is normalized between 0 and one whole cirlce value. "
-    @spec is_normalized(%Angle{}) :: atom
-    def is_normalized(%Angle{value: val, units: :degrees}) when val >= 0 and val < 360 do true end
-    @spec is_normalized(%Angle{}) :: atom
-    def is_normalized(%Angle{value: _val, units: :degrees}) do false end
-    @spec is_normalized(%Angle{}) :: atom
-    def is_normalized(%Angle{value: val, units: :radians}) when val >= 0 and val < @one_radian do true end
-    @spec is_normalized(%Angle{}) :: atom
-    def is_normalized(%Angle{value: _val, units: :radians}) do false end 
+    @spec is_normalized?(t) :: atom
+    def is_normalized?(%Angle{value: val, units: :degrees}) when val >= 0 and val < 360 do true end
+    def is_normalized?(%Angle{value: _val, units: :degrees}) do false end
+    def is_normalized?(%Angle{value: val, units: :radians}) when val >= 0 and val < @one_radian do true end
+    def is_normalized?(%Angle{value: _val, units: :radians}) do false end 
 
     @doc "Returns the given Angle converted to Degrees"
-    @spec to_degrees(%Angle{}) :: %Angle{}
+    @spec to_degrees(t) :: t
     def to_degrees(%Angle{value: val, units: :degrees}) do val |> new end
-    @spec to_degrees(%Angle{}) :: %Angle{}
     def to_degrees(%Angle{value: val, units: :radians}) do val |> radians_to_degrees |> new end
 
     @doc "Returns the giver Angle converted to Radians"
-    @spec to_radians(%Angle{}) :: %Angle{}
+    @spec to_radians(t) :: t
     def to_radians(%Angle{value: val, units: :radians}) do val |> new :radians end
-    @spec to_radians(%Angle{}) :: %Angle{}  
     def to_radians(%Angle{value: val, units: :degrees}) do val |> degrees_to_radians |> new :radians end
 
     @doc "Takes an Angle value in decimal degrees and converts it to decimal radians"

@@ -14,8 +14,8 @@ defmodule VectorTest do
 
     nashville = getNashvillePos()
     asheville = getAshevillePos()
-    dist1 = Vector.distanceOverGround(nashville,asheville) |> GeoPotion.Distance.to_km
-    dist2 = Vector.distanceOverGround(asheville,nashville) |> GeoPotion.Distance.to_km
+    dist1 = Vector.distance_over_ground(nashville,asheville) |> GeoPotion.Distance.to_km
+    dist2 = Vector.distance_over_ground(asheville,nashville) |> GeoPotion.Distance.to_km
 
     true = assert_in_delta(dist1.value, 387.9754, 0.0001)
     true = assert_in_delta(dist1.value, dist2.value, 0.00001)
@@ -41,7 +41,7 @@ defmodule VectorTest do
     nash1 = getNashvillePos()
     nash2 = Position.new(36.166471, -86.771285)
 
-    bearing = Vector.bearingTo(nash1, nash2)
+    bearing = Vector.bearing_to(nash1, nash2)
 
     true = assert_in_delta(bearing.value, 53.571197,0.01e8)
   end

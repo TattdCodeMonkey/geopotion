@@ -1,6 +1,7 @@
 defmodule GeoPotion.Distance do
   alias __MODULE__
   defstruct value: 0.0, units: :m
+  @type t :: %__MODULE__{value: number, units: atom}
   @moduledoc """
     Structure for handling distance. Will hold the value and unit of measure for a distance. 
     Supported units are meters :m, kilometers :km, feet :ft, statute miles :sm and nautical miles :nm
@@ -57,6 +58,7 @@ defmodule GeoPotion.Distance do
   iex>Distance.new(12.5, :nm)
   %Distance{value: 12.5, units: :nm}
   """
+  @spec new(number,atom) :: t 
   def new(val, units) when is_number(val) do
     _new(val,units) 
   end  
@@ -73,10 +75,12 @@ defmodule GeoPotion.Distance do
   iex>Distance.new(155.65)
   %Distance{value: 155.65, units: :m}
   """
+  @spec new(number) :: t
   def new(val) when is_number(val) do
     new(val, :m)
   end
 
+  @spec new() :: t
   def new(), do: new(0.0, :m)
 
   @doc """
@@ -85,6 +89,7 @@ defmodule GeoPotion.Distance do
   iex>Distance.convert_to(%Distance{units: :m, value: 1500}, :km)
   %Distance{units: :km, value: 1.5}
   """
+  @spec convert_to(t, atom) :: t
   def convert_to(%Distance{} = dist, unit) when is_atom(unit) do
     case unit do
       :m -> to_meters(dist)
@@ -101,6 +106,7 @@ defmodule GeoPotion.Distance do
   iex>Distance.to_m(%Distance{value: 1, units: :km})
   %Distance{value: 1000, units: :m}
   """
+  @spec to_m(t) :: t
   def to_m(%Distance{} = dist) do dist |> _toMeters end
   @doc """
   Takes a %Distance and converts the given value in any supported units and returns the value converted to meters
@@ -108,6 +114,7 @@ defmodule GeoPotion.Distance do
   iex>Distance.to_meters(%Distance{value: 50, units: :ft})
   %Distance{value: 15.24, units: :m}
   """
+  @spec to_meters(t) :: t
   def to_meters(%Distance{} = dist) do dist |> _toMeters end
   defp _toMeters(%Distance{ value: val, units: :m})  do val |> new end
   defp _toMeters(%Distance{ value: val, units: :km}) do val * @meters_per_kilometer |> new end
@@ -121,6 +128,7 @@ defmodule GeoPotion.Distance do
   iex>Distance.to_kilometers(%Distance{value: 2500, units: :m})
   %Distance{value: 2.5, units: :km} 
   """
+  @spec to_kilometers(t) :: t
   def to_kilometers(%Distance{} = dist) do dist |> _to_km end
   @doc """
   Takes a %Distance and converts the given value in any supported units and returns the value converted to kilometers
@@ -128,6 +136,7 @@ defmodule GeoPotion.Distance do
   iex>Distance.to_km(%Distance{value: 155, units: :nm})
   %Distance{value: 287.06, units: :km} 
   """
+  @spec to_km(t) :: t
   def to_km(%Distance{} = dist) do dist |> _to_km end
   defp _to_km(%Distance{ value: val, units: :km}) do val |> new :km end
   defp _to_km(%Distance{ value: val, units: :m}) do val * @kilometers_per_meter |> new :km end
@@ -141,6 +150,7 @@ defmodule GeoPotion.Distance do
   iex>Distance.to_feet(%Distance{value: 1, units: :sm})
   %Distance{value: 5280, units: :ft} 
   """
+  @spec to_feet(t) :: t
   def to_feet(%Distance{} = dist) do dist |> _toFeet end
   @doc """
   Takes a %Distance and converts the given value in any supported units and returns the value converted to feet 
@@ -148,6 +158,7 @@ defmodule GeoPotion.Distance do
   iex>Distance.to_ft(%Distance{value: 1, units: :sm})
   %Distance{value: 5280, units: :ft} 
   """
+  @spec to_ft(t) :: t
   def to_ft(%Distance{} = dist) do dist |> _toFeet end
   defp _toFeet(%Distance{ value: val, units: :ft}) do val |> new :ft end
   defp _toFeet(%Distance{ value: val, units: :m})  do val * @feet_per_meter |> new :ft end
@@ -161,6 +172,7 @@ defmodule GeoPotion.Distance do
   iex>Distance.to_miles(%Distance{value: 5280, units: :ft})
   %Distance{value: 1.0, units: :sm} 
   """
+  @spec to_miles(t) :: t
   def to_miles(%Distance{} = dist) do dist |> _to_sm end
   @doc """
   Takes a %Distance and converts the given value in any supported units and returns the value converted to statute miles 
@@ -168,6 +180,7 @@ defmodule GeoPotion.Distance do
   iex>Distance.to_statute_miles(%Distance{value: 5280, units: :ft})
   %Distance{value: 1.0, units: :sm} 
   """
+  @spec to_statute_miles(t) :: t
   def to_statute_miles(%Distance{} = dist) do dist |> _to_sm end
   @doc """
   Takes a %Distance and converts the given value in any supported units and returns the value converted to statute miles 
@@ -175,6 +188,7 @@ defmodule GeoPotion.Distance do
   iex>Distance.to_sm(%Distance{value: 5280, units: :ft})
   %Distance{value: 1.0, units: :sm} 
   """
+  @spec to_sm(t) :: t
   def to_sm(%Distance{} = dist) do dist |> _to_sm end
   defp _to_sm(%Distance{value: val, units: :sm}) do val |> new :sm end
   defp _to_sm(%Distance{value: val, units: :m}) do val / @meters_per_statute_mile |> new :sm end
@@ -188,6 +202,7 @@ defmodule GeoPotion.Distance do
   iex>Distance.to_nautical_miles(%Distance{value: 1852, units: :m})
   %Distance{value: 1.0, units: :nm} 
   """
+  @spec to_nautical_miles(t) :: t
   def to_nautical_miles(%Distance{} = dist) do dist |> _to_nm end
   @doc """
   Takes a %Distance and converts the given value in any supported units and returns the value converted to statute miles 
@@ -195,6 +210,7 @@ defmodule GeoPotion.Distance do
   iex>Distance.to_nm(%Distance{value: 1852, units: :m})
   %Distance{value: 1.0, units: :nm} 
   """
+  @spec to_nm(t) :: t
   def to_nm(%Distance{} = dist) do dist |> _to_nm end
   defp _to_nm(%Distance{value: val, units: :nm}) do val |> new :nm end
   defp _to_nm(%Distance{value: val, units: :m}) do val / @meters_per_nautical_mile |> new :nm end

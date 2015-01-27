@@ -3,28 +3,24 @@ defmodule GeoPotion.Mixfile do
 
   def project do
     [app: :geopotion,
-     version: "0.1.0",
+     version: "0.1.1",
      elixir: "~> 1.0.0",
-     deps: deps]
+     deps: deps,
+     package: package()]
   end
 
-  # Configuration for the OTP application
-  #
-  # Type `mix help compile.app` for more information
   def application do
     [applications: []]
   end
 
-  # Dependencies can be hex.pm packages:
-  #
-  #   {:mydep, "~> 0.3.0"}
-  #
-  # Or git/path repositories:
-  #
-  #   {:mydep, git: "https://github.com/elixir-lang/mydep.git", tag: "0.1"}
-  #
-  # Type `mix help deps` for more examples and options
   defp deps do
-    []
+    [{:dialyze, "~> 0.1.3", optional: true}]
+  end
+
+  defp package() do
+    [files: ["lib", "mix.exs", "README.md", "LICENSE"],
+      contributors: ["Rodney Norris"],
+      licenses: ["Apache 2.0"],
+      links: [{"Github", "https://github.com/tattdcodemonkey/geopotion"}]]
   end
 end

@@ -2,6 +2,18 @@ defmodule GeoPotion.Vector do
   alias :math, as: Math
   alias GeoPotion.Distance
   alias GeoPotion.Angle
+  alias __MODULE__
+
+  @type position_map :: %{
+    latitude: number,
+    longitude: number
+  }
+
+  @type t :: %__MODULE__{
+    azimuth: Angle.t,
+    distance: Distance.t
+  }
+  defstruct azimuth: Angle.new, distance: Distance.new
 
   @moduledoc """
   """
@@ -15,21 +27,24 @@ defmodule GeoPotion.Vector do
 
   @calc_iterations 100
 
-  def calculate(%{latitude: _,longitude: _} = from, %{latitude: _, longitude: _} = to) do
-    _vincentyCalc(from.latitude, from.longitude, to.latitude, to.longitude)
+  @spec calculate(position_map, position_map) :: t
+  def calculate(%{latitude: from_lat,longitude: from_lon}, %{latitude: to_lat, longitude: to_lon}) do
+    _vincenty_calc(from_lat, from_lon, to_lat, to_lon)
   end
 
-  def distanceOverGround(%{latitude: _,longitude: _} = from, %{latitude: _, longitude: _} = to) do
-    %{distance: result} = _vincentyCalc(from.latitude, from.longitude, to.latitude, to.longitude)
+  @spec distance_over_ground(position_map, position_map) :: Distance.t
+  def distance_over_ground(%{latitude: from_lat,longitude: from_lon}, %{latitude: to_lat, longitude: to_lon}) do
+    %{distance: result} = _vincenty_calc(from_lat, from_lon, to_lat, to_lon)
     result
   end
 
-  def bearingTo(%{latitude: _, longitude: _} = from, %{latitude: _,longitude: _} = to) do
-    %{azimuth: result} = _vincentyCalc(from.latitude, from.longitude, to.latitude, to.longitude)
+  @spec bearing_to(position_map, position_map) :: Angle.t 
+  def bearing_to(%{latitude: from_lat,longitude: from_lon}, %{latitude: to_lat, longitude: to_lon}) do
+    %{azimuth: result} = _vincenty_calc(from_lat, from_lon, to_lat, to_lon)
     result
   end
 
-  defp _distanceOverGround(lat1, lon1, lat2, lon2) do
+  defp _distance_over_ground(lat1, lon1, lat2, lon2) do
     # From: http://www.mathworks.com/matlabcentral/files/8607/vdist.m
     # this implementation was ported from DotSpatial library
     # this is the aproximated fast calculation over the more accurate slow one.
@@ -56,23 +71,23 @@ defmodule GeoPotion.Vector do
     ravg * c |> Distance.new
   end
 
-  defp _vincentyCalc(lat1, lon1, lat2, lon2) when lat1 == lat2 and lon1 == lon2 do
-    %{azimuth: Angle.new(0.0), distance: Distance.new(0.0) }
+  defp _vincenty_calc(lat1, lon1, lat2, lon2) when lat1 == lat2 and lon1 == lon2 do
+    %__MODULE__{azimuth: Angle.new(0.0), distance: Distance.new(0.0) }
   end
 
 
-  defp _vincentyCalc(lat1, lon1, lat2, lon2) do
+  defp _vincenty_calc(lat1, lon1, lat2, lon2) do
     {_,rLon1, _, rLon2} = radians = _getRads({lat1, lon1, lat2, lon2})
 
-    [l,u1, u2|rest] = prep = _ittPrep(radians)
+    [l,u1, u2|rest] = prep = _itt_prep(radians)
 
-    [lamda|_] = ittResults = _ittCalc(0,l, prep, [l])
+    [lamda|_] = ittResults = _itt_calc(0,l, prep, [l])
 
-    dist = _calcDist(ittResults)
+    dist = _calc_distance(ittResults)
 
-    fwdAz = _calcAzimuth([lamda,u1,u2])
-
-    %{azimuth: fwdAz, distance: dist}
+    fwdAz = _calc_azimuth([lamda,u1,u2])
+    
+    %__MODULE__{azimuth: fwdAz, distance: dist}
   end
 
   defp _getRads({lat1, lon1, lat2, lon2}) do
@@ -84,7 +99,7 @@ defmodule GeoPotion.Vector do
     {rLat1,rLon1,rLat2,rLon2}
   end
 
-  defp _ittPrep(radians) do
+  defp _itt_prep(radians) do
     {lat1, lon1, lat2, lon2} = radians
     u1 = Math.atan((1-@flattening_wgs1984) * Math.tan(lat1))
     u2 = Math.atan((1-@flattening_wgs1984) * Math.tan(lat2))
@@ -97,12 +112,12 @@ defmodule GeoPotion.Vector do
     [l, u1, u2, lon1, lon2]
   end
 
-  defp _ittCalc(0, _lDiff, [lamda|rest], _) when lamda > @pi do
+  defp _itt_calc(0, _lDiff, [lamda|rest], _) when lamda > @pi do
     newlamda = 2 * Math.pi - lamda
-    _ittCalc(0,newlamda,[newlamda,rest],[newlamda])
+    _itt_calc(0,newlamda,[newlamda,rest],[newlamda])
   end
 
-  defp _ittCalc(count, lamdaDif,state, vals) when count == 0 or (lamdaDif > 0.1e-6 and count <= @calc_iterations) do
+  defp _itt_calc(count, lamdaDif,state, vals) when count == 0 or (lamdaDif > 0.1e-6 and count <= @calc_iterations) do
     [l, u1, u2|_] = state
     [lamda| _rest] = vals
 
@@ -130,10 +145,10 @@ defmodule GeoPotion.Vector do
 
     lamdaDiff = abs(newlamda - lamda)
 
-    _ittCalc(count+1,lamdaDiff,state,[newlamda, alpha, sigma, cos2SigmaM])
+    _itt_calc(count+1,lamdaDiff,state,[newlamda, alpha, sigma, cos2SigmaM])
   end
 
-  defp _ittCalc(_count, _lamdaDiff, state, vals) do
+  defp _itt_calc(_count, _lamdaDiff, state, vals) do
     [_,_,_,lon1,lon2] = state
     [lamda|rest] = vals
     newlamda = abs(lamda)
@@ -143,7 +158,7 @@ defmodule GeoPotion.Vector do
     [newlamda|rest]
   end
 
-  defp _calcDist([_, alpha, sigma, cos2SigmaM]) do
+  defp _calc_distance([_, alpha, sigma, cos2SigmaM]) do
     a = @equitorial_radius_wgs1984
     b = @polar_radius_wgs1984
     distU2 = (alpha |> Math.cos |> Math.pow 2) * ((Math.pow(a,2) - Math.pow(b,2)) / Math.pow(b,2))
@@ -157,7 +172,7 @@ defmodule GeoPotion.Vector do
     s |> Distance.new
   end
 
-  defp _calcAzimuth([lamda, u1, u2]) do
+  defp _calc_azimuth([lamda, u1, u2]) do
     numer = Math.cos(u2) * Math.sin(lamda)
     denom = Math.cos(u1) * Math.sin(u2) - Math.sin(u1) * Math.cos(u2) * Math.cos(lamda)
 
