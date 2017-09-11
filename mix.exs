@@ -4,8 +4,8 @@ defmodule GeoPotion.Mixfile do
   def project do
     [app: :geopotion,
      version: "0.1.1",
-     elixir: "~> 1.0.0",
-     deps: deps,
+     elixir: ">= 1.0.0 and < 2.0.0",
+     deps: deps(),
      package: package()]
   end
 
