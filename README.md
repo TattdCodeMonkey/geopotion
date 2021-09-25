@@ -1,6 +1,5 @@
 GeoPotion
 =========
-[![Build Status](https://travis-ci.org/TattdCodeMonkey/geopotion.png?branch=master)](https://travis-ci.org/TattdCodeMonkey/geopotion)
 
 *** WIP ***
 
